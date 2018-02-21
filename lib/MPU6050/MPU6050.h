@@ -50,6 +50,8 @@
 #define MPU6050_WHO_AM_I_RESPONSE 0x68
 
 
+
+
 enum mpu6050_gyro_range{
   MPU6050_GYRO_RANGE_250_DPS = 0x00,
   MPU6050_GYRO_RANGE_500_DPS = 0x01,
@@ -98,7 +100,12 @@ public:
 private:
   MPU6050_Raw_Data rawData;
   int mpuAddr = MPU6050_ADDR_0;
+  float gyroScale = calculateGyroScale(MPU6050_GYRO_RANGE_250_DPS);
+  float accelScale = calculateAccelScale(MPU6050_ACCEL_RANGE_2_GPS);
+  float scaleTemp(int temp);
   bool checkMPU();
+  float calculateGyroScale(int scale);
+  float calculateAccelScale(int scale);
   void write8(int reg, int value);
   void write8(int reg);
   int read8(int reg);
