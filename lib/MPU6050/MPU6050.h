@@ -49,7 +49,7 @@
 
 #define MPU6050_WHO_AM_I_RESPONSE 0x68
 
-
+#define COMPLEMENTARY_FILTER_KP .95
 
 
 enum mpu6050_gyro_range{
@@ -115,15 +115,21 @@ public:
   MPU6050_Raw_Data getRawData();
   void getScaledData(MPU6050_Scaled_Data *data);
   void getData(MPU6050_Data *data);
+  void zero();
 
 private:
+  float xOffset = 0, yOffset = 0, zOffset = 0;
+  float dX_Offset = 0, dY_Offset = 0, dZ_Offset = 0;
   long timeAtLastRead = 0;
   MPU6050_Raw_Data rawData;
   MPU6050_Scaled_Data scaledData;
   MPU6050_Data runningData;
+  float xAcc, yAcc;
   long tempTime;
   int mpuAddr = MPU6050_ADDR_0;
   void update();
+
+  void applyFilter(MPU6050_Scaled_Data *scaleData);
   void scaleData(MPU6050_Raw_Data *raw, MPU6050_Scaled_Data *scaledData);
   void normalizeGyro(MPU6050_Scaled_Data *data, long deltaMicros);
   float gyroScale = calculateGyroScale(MPU6050_GYRO_RANGE_250_DPS);
