@@ -79,10 +79,27 @@ struct Vector3f{
   float z = 0;
 };
 
+struct Vector3i{
+  int x = 0;
+  int y = 0;
+  int z = 0;
+};
+
 struct MPU6050_Raw_Data{
-  Vector3f rawGyro, rawAccel;
+  Vector3i gyro, accel;
   int temp;
 };
+
+struct MPU6050_Scaled_Data{
+  Vector3f gyro,accel;
+  float temp;
+};
+
+struct MPU6050_Data{
+  Vector3f gyro, accel, orientation;
+  float temp;
+};
+
 
 class MPU6050{
 public:
@@ -96,10 +113,19 @@ public:
   void getAccelData(Vector3f *vec);
   void getGyroData(Vector3f *vec);
   MPU6050_Raw_Data getRawData();
+  void getScaledData(MPU6050_Scaled_Data *data);
+  void getData(MPU6050_Data *data);
 
 private:
+  long timeAtLastRead = 0;
   MPU6050_Raw_Data rawData;
+  MPU6050_Scaled_Data scaledData;
+  MPU6050_Data runningData;
+  long tempTime;
   int mpuAddr = MPU6050_ADDR_0;
+  void update();
+  void scaleData(MPU6050_Raw_Data *raw, MPU6050_Scaled_Data *scaledData);
+  void normalizeGyro(MPU6050_Scaled_Data *data, long deltaMicros);
   float gyroScale = calculateGyroScale(MPU6050_GYRO_RANGE_250_DPS);
   float accelScale = calculateAccelScale(MPU6050_ACCEL_RANGE_2_GPS);
   float scaleTemp(int temp);

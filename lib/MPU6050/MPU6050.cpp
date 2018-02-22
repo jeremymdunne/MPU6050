@@ -8,20 +8,37 @@ MPU6050_Raw_Data MPU6050::getRawData(){
 
 
 
-void MPU6050::getGyroData(Vector3f *vec){
-
-}
-
-void MPU6050::getAccelData(Vector3f *vec){
-
-}
-
-void MPU6050::getTempData(int *temp){
-
-}
 
 void scaleData(){
 
+}
+
+void MPU6050::getData(MPU6050_Data *data){
+    if(timeAtLastRead == 0){
+      update();
+      delay(10);
+    }
+    update();
+    *data = runningData;
+}
+
+void MPU6050::update(){
+  tempTime = micros();
+  getAllData(&rawData);
+  scaleData(&rawData,&scaledData);
+  normalizeGyro(&scaledData, tempTime - timeAtLastRead);
+  runningData.accel = scaledData.accel;
+  runningData.temp = scaledData.temp;
+  runningData.gyro.x += scaledData.gyro.x;
+  runningData.gyro.y += scaledData.gyro.y;
+  runningData.gyro.z += scaledData.gyro.z;
+  timeAtLastRead = tempTime;
+}
+
+void MPU6050::normalizeGyro(MPU6050_Scaled_Data *data, long deltaMicros){
+  data->gyro.x *= (float)(deltaMicros/1000000.0);
+  data->gyro.y *= (float)(deltaMicros/1000000.0);
+  data->gyro.z *= (float)(deltaMicros/1000000.0);
 }
 
 
@@ -29,7 +46,20 @@ float MPU6050::scaleTemp(int temp){
   return temp/340.0 + 36.53;
 }
 
+void MPU6050::getScaledData(MPU6050_Scaled_Data *data){
+  getAllData(&rawData);
+  scaleData(&rawData, data);
+}
 
+void MPU6050::scaleData(MPU6050_Raw_Data *raw, MPU6050_Scaled_Data *data){
+  data->gyro.x = raw->gyro.x / gyroScale;
+  data->gyro.y = raw->gyro.y / gyroScale;
+  data->gyro.z = raw->gyro.z / gyroScale;
+  data->accel.x = raw->accel.x / accelScale;
+  data->accel.y = raw->accel.y / accelScale;
+  data->accel.z = raw->accel.z / accelScale;
+  data->temp = scaleTemp(raw->temp);
+}
 
 float MPU6050::calculateAccelScale(int scale){
   switch (scale) {
@@ -68,17 +98,17 @@ float MPU6050::calculateGyroScale(int scale){
 }
 
 
-void MPU6050::getAllData(MPU6050_Raw_Data *rawData){
+void MPU6050::getAllData(MPU6050_Raw_Data *raw){
   //Serial.println(read16(MPU6050_ACCEL_XOUT_H));
   write8(MPU6050_ACCEL_XOUT_H);
   Wire.requestFrom(mpuAddr,14,true);
-  rawData->rawAccel.x = Wire.read()<<8|Wire.read();
-  rawData->rawAccel.y = Wire.read() <<8|Wire.read();
-  rawData->rawAccel.z = Wire.read() <<8|Wire.read();
-  rawData->temp = Wire.read() <<8|Wire.read();
-  rawData->rawGyro.x = Wire.read() <<8|Wire.read();
-  rawData->rawGyro.y = Wire.read() <<8|Wire.read();
-  rawData->rawGyro.z = Wire.read() <<8|Wire.read();
+  raw->accel.x = Wire.read()<<8|Wire.read();
+  raw->accel.y = Wire.read() <<8|Wire.read();
+  raw->accel.z = Wire.read() <<8|Wire.read();
+  raw->temp = Wire.read() <<8|Wire.read();
+  raw->gyro.x = Wire.read() <<8|Wire.read();
+  raw->gyro.y = Wire.read() <<8|Wire.read();
+  raw->gyro.z = Wire.read() <<8|Wire.read();
 }
 
 int MPU6050::begin(){
@@ -95,7 +125,7 @@ int MPU6050::begin(){
   Wire.endTransmission(true);
   */
   resetDevice();
-  setAccelRange(MPU6050_ACCEL_RANGE_2_GPS);
+  setAccelRange(MPU6050_ACCEL_RANGE_4_GPS);
   setGyroRange(MPU6050_GYRO_RANGE_250_DPS);
   setClockSource(MPU6050_CLOCK_SOURCE_X_GYRO);
 
@@ -107,10 +137,10 @@ void MPU6050::setClockSource(mpu6050_clock_source source){
 }
 
 void MPU6050::setAccelRange(mpu6050_accel_range range){
-    int value = read8(MPU6050_ACCEL_CONFIG);
-    value &= 0b11100111;
-    value |= range << 3;
-    write8(MPU6050_ACCEL_CONFIG,value);
+    // int value = read8(MPU6050_ACCEL_CONFIG);
+    // value &= 0b11100111;
+    // value |= range << 3;
+    write8(MPU6050_ACCEL_CONFIG,range);
     accelScale = calculateAccelScale(range);
 }
 

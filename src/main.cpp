@@ -14,13 +14,15 @@ void setup() {
     //imu.resetDevice();
     //Serial.println("Reset complete!");
 }
-MPU6050_Raw_Data imuData;
+//MPU6050_Raw_Data imuData;
+MPU6050_Data imuData;
 long timeStart = 0;
 void loop() {
     timeStart = millis();
-    imu.getAllData(&imuData);
-    Serial.println("Ax:" + String(imuData.rawAccel.x) + " Ay:"+ String(imuData.rawAccel.y) + " Az:"+ String(imuData.rawAccel.z) + " Gx:" + String(imuData.rawGyro.x) + " Gy:" + String(imuData.rawGyro.y) + " Gz:" + String(imuData.rawGyro.z) + " Temp:" + String(imuData.temp));
+    imu.getData(&imuData);
+    //imu.getAllData(&imuData);
+    Serial.println("Ax:" + String(imuData.accel.x) + " Ay:"+ String(imuData.accel.y) + " Az:"+ String(imuData.accel.z) + " Gx:" + String(imuData.gyro.x) + " Gy:" + String(imuData.gyro.y) + " Gz:" + String(imuData.gyro.z) + " Temp:" + String(imuData.temp));
     Serial.println(String(millis() - timeStart));
-    delay(50);
+    delay(5);
     // put your main code here, to run repeatedly:
 }
