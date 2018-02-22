@@ -144,21 +144,27 @@ int MPU6050::begin(){
   if(!checkMPU()){
     return -1;
   }
-  //write8(MPU6050_PWR_MGMT_1,MPU6050_CLOCK_SOURCE_X_GYRO);
-  //setClockSource(MPU6050_CLOCK_SOURCE_X_GYRO);
-  /*
-  Wire.beginTransmission(mpuAddr);
-  Wire.write(0x6B);  // PWR_MGMT_1 register
-  Wire.write(0);
-  Wire.endTransmission(true);
-  */
   resetDevice();
   setClockSource(MPU6050_CLOCK_SOURCE_X_GYRO);
   delay(100);
-  setAccelRange(MPU6050_ACCEL_RANGE_8_GPS);
-  setGyroRange(MPU6050_GYRO_RANGE_1000_DPS);
+  setAccelRange(MPU6050_ACCEL_RANGE_2_GPS);
+  setGyroRange(MPU6050_GYRO_RANGE_250_DPS);
   Serial.println(read8(MPU6050_CONFIG),BIN);
 
+  return 0;
+}
+
+int MPU6050::begin(mpu6050_gyro_range gyroRange, mpu6050_accel_range accelRange){
+  Wire.begin();
+  if(!checkMPU()){
+    return -1;
+  }
+  resetDevice();
+  setClockSource(MPU6050_CLOCK_SOURCE_X_GYRO);
+  delay(100);
+  setAccelRange(accelRange);
+  setGyroRange(gyroRange);
+  //Serial.println(read8(MPU6050_CONFIG),BIN);
   return 0;
 }
 

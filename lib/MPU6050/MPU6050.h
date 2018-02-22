@@ -104,6 +104,7 @@ struct MPU6050_Data{
 class MPU6050{
 public:
   int begin();
+  int begin(mpu6050_gyro_range gyroRange, mpu6050_accel_range accelRange);
   void resetDevice();
   void setClockSource(mpu6050_clock_source source);
   void setAccelRange(mpu6050_accel_range range);

@@ -5,7 +5,7 @@ MPU6050 imu;
 void setup() {
     // put your setup code here, to run once:
     Serial.begin(115200);
-    if(imu.begin() < 0){
+    if(imu.begin(MPU6050_GYRO_RANGE_1000_DPS, MPU6050_ACCEL_RANGE_8_GPS) < 0){
       Serial.println("IMU init Fail!");
       while(true);
     }
