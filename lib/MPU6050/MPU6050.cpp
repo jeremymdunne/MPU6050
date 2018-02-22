@@ -1,9 +1,8 @@
 #include "MPU6050.h"
 
 
-MPU6050_Raw_Data MPU6050::getRawData(){
-  MPU6050_Raw_Data data;
-  return data;
+void MPU6050::getRawData(MPU6050_Raw_Data * data){
+  getAllData(data);
 }
 
 void MPU6050::zero(){
@@ -16,11 +15,13 @@ void MPU6050::zero(){
   dX_Offset = runningData.gyro.x / ((endMillis - startMillis)/1000.0);
   dY_Offset = runningData.gyro.y / ((endMillis - startMillis)/1000.0);
   dZ_Offset = runningData.gyro.z / ((endMillis - startMillis)/1000.0);
-  startMillis = millis();
-  for(int i = 0; i < 10; i ++){
+  //clear previous values
+
+  //startMillis = millis();
+  for(int i = 0; i < 50; i ++){
     update();
   }
-  endMillis = millis();
+  //endMillis = millis();
   xOffset = runningData.orientation.x;
   yOffset = runningData.orientation.y;
   //z can't be fixed
@@ -155,8 +156,8 @@ int MPU6050::begin(){
   setClockSource(MPU6050_CLOCK_SOURCE_X_GYRO);
   delay(100);
   setAccelRange(MPU6050_ACCEL_RANGE_8_GPS);
-  setGyroRange(MPU6050_GYRO_RANGE_250_DPS);
-
+  setGyroRange(MPU6050_GYRO_RANGE_1000_DPS);
+  Serial.println(read8(MPU6050_CONFIG),BIN);
 
   return 0;
 }
@@ -188,14 +189,14 @@ void MPU6050::setGyroRange(mpu6050_gyro_range range){
 
 void MPU6050::resetDevice(){
   int value = read8(MPU6050_PWR_MGMT_1);
-  Serial.println(value, BIN);
+  //Serial.println(value, BIN);
   value &= 0b01111111;
   value |= 1 << 7;
   write8(MPU6050_PWR_MGMT_1,value);
   delay(10);
   while(read8(MPU6050_PWR_MGMT_1) >> 7 != 0) delay(10);
   value = read8(MPU6050_PWR_MGMT_1);
-  Serial.println(value, BIN);
+  //Serial.println(value, BIN);
 }
 
 

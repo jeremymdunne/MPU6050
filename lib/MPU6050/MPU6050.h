@@ -49,7 +49,7 @@
 
 #define MPU6050_WHO_AM_I_RESPONSE 0x68
 
-#define COMPLEMENTARY_FILTER_KP .95
+#define COMPLEMENTARY_FILTER_KP .90
 
 
 enum mpu6050_gyro_range{
@@ -108,14 +108,13 @@ public:
   void setClockSource(mpu6050_clock_source source);
   void setAccelRange(mpu6050_accel_range range);
   void setGyroRange(mpu6050_gyro_range range);
-  void getAllData(MPU6050_Raw_Data *rawData);
   void getTempData(int *temp);
   void getAccelData(Vector3f *vec);
   void getGyroData(Vector3f *vec);
-  MPU6050_Raw_Data getRawData();
   void getScaledData(MPU6050_Scaled_Data *data);
   void getData(MPU6050_Data *data);
   void zero();
+  void getRawData(MPU6050_Raw_Data * data);
 
 private:
   float xOffset = 0, yOffset = 0, zOffset = 0;
@@ -128,7 +127,7 @@ private:
   long tempTime;
   int mpuAddr = MPU6050_ADDR_0;
   void update();
-
+  void getAllData(MPU6050_Raw_Data *rawData);
   void applyFilter(MPU6050_Scaled_Data *scaleData);
   void scaleData(MPU6050_Raw_Data *raw, MPU6050_Scaled_Data *scaledData);
   void normalizeGyro(MPU6050_Scaled_Data *data, long deltaMicros);
